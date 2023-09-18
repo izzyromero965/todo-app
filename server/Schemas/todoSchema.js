@@ -5,8 +5,6 @@ export default gql`
   type Todo {
     id: ID
     title: String
-    details: String
-    date: Date
     user_email: String
   }
   type Query {
@@ -15,13 +13,8 @@ export default gql`
     getFeaturedTodos(user_email: String): [Todo]
   }
   type Mutation {
-    createTodo(
-      title: String
-      details: String
-      date: Date
-      user_email: String
-    ): Todo
+    createTodo(title: String, user_email: String): Todo
     deleteTodo(id: ID): Todo
-    updateTodo(id: ID, title: String, date: Date, details: String): Todo
+    updateTodo(id: ID, title: String): Todo
   }
 `;

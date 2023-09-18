@@ -21,8 +21,6 @@ export async function getTodo(root, args) {
 export async function createTodo(root, args) {
   const newTodo = new Todo({
     title: args.title,
-    details: args.details,
-    date: args.date,
     user_email: args.user_email,
   });
 
@@ -36,17 +34,12 @@ export async function deleteTodo(root, args) {
 }
 
 export async function updateTodo(root, args) {
-  const { id, title, details, date } = args;
+  const { id, title } = args;
   const updatedTodo = {};
   if (title) {
     updatedTodo.title = title;
   }
-  if (details) {
-    updatedTodo.details = details;
-  }
-  if (date) {
-    updatedTodo.date = date;
-  }
+
   const todo = await Todo.findByIdAndUpdate(id, updatedTodo, {
     new: true,
   });

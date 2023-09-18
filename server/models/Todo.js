@@ -6,8 +6,6 @@ const todoSchema = new Schema(
       type: String,
       required: true,
     },
-    details: String,
-    date: Date,
     user_email: {
       type: String,
       required: true,
