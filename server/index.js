@@ -11,7 +11,12 @@ const PORT = process.env.PORT || 4000;
 
 async function initServer() {
   const app = express();
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
   dotenv.config();
 
   // Auth0 configuration
@@ -24,7 +29,15 @@ async function initServer() {
     issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
   };
 
-  const apolloServer = new ApolloServer({ typeDefs, resolvers });
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req }) => {
+      // Add user information from Auth0 to the context for authorization
+      const user = req.oidc?.user || null;
+      return { user };
+    },
+  });
 
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
@@ -32,6 +45,7 @@ async function initServer() {
     res.send("Server started successfully");
   });
   app.use(auth(authConfig));
+
   try {
     await mongoose.connect(process.env.mongodb);
     console.log(`Connected to MongoDB successfully`);

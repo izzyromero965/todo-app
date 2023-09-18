@@ -1,7 +1,15 @@
 import Todo from "../models/Todo.js";
 
-export async function getTodos(root, args, context) {
-  const todos = await Todo.find();
+export async function getTodos(root, args) {
+  const { user_email } = args;
+  const todos = await Todo.find({ user_email });
+  return todos;
+}
+
+export async function getFeaturedTodos(root, args) {
+  const { user_email } = args;
+  const todos = await Todo.find({ user_email: { $ne: user_email } }).limit(5);
+
   return todos;
 }
 
@@ -15,6 +23,7 @@ export async function createTodo(root, args) {
     title: args.title,
     details: args.details,
     date: args.date,
+    user_email: args.user_email,
   });
 
   await newTodo.save();
@@ -22,8 +31,8 @@ export async function createTodo(root, args) {
 }
 
 export async function deleteTodo(root, args) {
-  await Todo.findByIdAndDelete(args.id);
-  return "Todo deleted successfully";
+  const deletedTodo = await Todo.findByIdAndDelete(args.id);
+  return deletedTodo;
 }
 
 export async function updateTodo(root, args) {
@@ -49,6 +58,7 @@ export default {
   Query: {
     getTodos,
     getTodo,
+    getFeaturedTodos,
   },
   Mutation: {
     createTodo,

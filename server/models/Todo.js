@@ -8,6 +8,10 @@ const todoSchema = new Schema(
     },
     details: String,
     date: Date,
+    user_email: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
