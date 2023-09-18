@@ -35,14 +35,14 @@ export async function deleteTodo(root, args) {
 
 export async function updateTodo(root, args) {
   const { id, title } = args;
-  const updatedTodo = {};
-  if (title) {
-    updatedTodo.title = title;
-  }
 
-  const todo = await Todo.findByIdAndUpdate(id, updatedTodo, {
-    new: true,
-  });
+  const todo = await Todo.findByIdAndUpdate(
+    id,
+    { title },
+    {
+      new: true,
+    }
+  );
 
   return todo;
 }

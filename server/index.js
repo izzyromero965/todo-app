@@ -8,44 +8,39 @@ import dotenv from "dotenv";
 import { auth } from "express-openid-connect";
 
 const PORT = process.env.PORT || 4000;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
+
+initServer();
 
 async function initServer() {
   const app = express();
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: CORS_ORIGIN,
       credentials: true,
     })
   );
   dotenv.config();
 
-  // Auth0 configuration
-  const authConfig = {
-    authRequired: false,
-    auth0Logout: true,
-    secret: process.env.AUTH0_SECRET,
-    baseURL: process.env.AUTH0_BASE_URL,
-    clientID: process.env.AUTH0_CLIENT_ID,
-    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  };
+  await startApolloServerAndMiddleware({ app });
+  await connectToMongooseDbAndStartServer({ app });
+}
 
+async function startApolloServerAndMiddleware({ app }) {
+  // Auth0 configuration
+  const authConfig = getAuth0Configs();
   const apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req }) => {
-      // Add user information from Auth0 to the context for authorization
-      const user = req.oidc?.user || null;
-      return { user };
-    },
   });
 
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
-  app.use((req, res) => {
-    res.send("Server started successfully");
-  });
-  app.use(auth(authConfig));
 
+  app.use(auth(authConfig));
+}
+
+async function connectToMongooseDbAndStartServer({ app }) {
   try {
     await mongoose.connect(process.env.mongodb);
     console.log(`Connected to MongoDB successfully`);
@@ -57,4 +52,13 @@ async function initServer() {
   });
 }
 
-initServer();
+function getAuth0Configs() {
+  return {
+    authRequired: false,
+    auth0Logout: true,
+    secret: process.env.AUTH0_SECRET,
+    baseURL: process.env.AUTH0_BASE_URL,
+    clientID: process.env.AUTH0_CLIENT_ID,
+    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  };
+}

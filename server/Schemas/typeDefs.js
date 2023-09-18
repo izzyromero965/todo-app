@@ -1,5 +1,4 @@
 import todoSchema from "./todoSchema.js";
-import userSchema from "./userSchema.js";
 
-const typeDefs = [todoSchema, userSchema];
+const typeDefs = [todoSchema];
 export default typeDefs;
